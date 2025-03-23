@@ -11,12 +11,12 @@ import java.util.List;
 
 import org.testng.Assert;
 
-
 public class StepDefinition extends UtilsForAPITesting {
-	
+
 	RequestSpecification req;
 	Response responseAfterHTTPMethod;
 	
+
 	@Given("I have the API endpoint {string}")
 	public void i_have_the_api_endpoint(String endPoint) {
 		System.out.println("1");
@@ -34,7 +34,7 @@ public class StepDefinition extends UtilsForAPITesting {
 		System.out.println("3");
 		String responseString = responseAfterHTTPMethod.then().extract().asString();
 		JsonPath js = new JsonPath(responseString);
-		Assert.assertEquals(js.getInt(responseString), statusCode);
+		Assert.assertEquals(js.getInt("responseCode"), statusCode);
 	}
 
 	@Then("the response JSON should contain all brands list")
@@ -42,22 +42,29 @@ public class StepDefinition extends UtilsForAPITesting {
 		System.out.println("4");
 		String responseString = responseAfterHTTPMethod.then().extract().asString();
 		JsonPath js = new JsonPath(responseString);
-		List <Object> arr = js.getList("products");
+		List<Object> arr = js.getList("products");
 		Assert.assertTrue(arr.size() > 0);
 		System.out.println("Should make a better assert");
 	}
 
 	@When("I send a PUT request to the endpoint {string}")
 	public void i_send_a_put_request_to_the_endpoint(String string) {
-		
+		System.out.println("5");
+		responseAfterHTTPMethod = given().header("Content-Type", "application/json").spec(req).when().post(string);
 
-		
 	}
 
 	@Then("the response message should be {string}")
-	public void the_response_message_should_be(String string) {
+	public void the_response_message_should_be(String expectedResponseMessage) {
 
-		
+		System.out.println("6");
+		String responseString = responseAfterHTTPMethod.then().extract().asString();
+		JsonPath js = new JsonPath(responseString);
+		String actualyResponseMessage = js.get("message");
+		System.out.println(actualyResponseMessage + "::::" + expectedResponseMessage);
+		Assert.assertEquals(actualyResponseMessage, expectedResponseMessage);
+		System.out.println("Actually assert of response message");
+
 	}
 
 }
